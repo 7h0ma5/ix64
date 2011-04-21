@@ -1,18 +1,18 @@
 AS = nasm -f elf64
-CC = gcc -Wall -fno-stack-protector -nostdinc
 LD = ld -nostdlib -T tools/link.ld
+CXX = g++ -g -Iinclude -Wall -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -fno-exceptions -fno-rtti -fno-stack-protector
 
 asm := $(patsubst %.asm,%.o,$(wildcard asm/*.asm))
-kernel := $(patsubst %.c,%.o,$(wildcard kernel/*.c))
+kernel := $(patsubst %.cc,%.o,$(wildcard kernel/*.cc))
 
-all: $(asm) $(kernel) $(drivers)
+all: kernel.bin iso
+
+kernel.bin: $(kernel) $(asm)
 	$(LD) $(LDFLAGS) $(asm) $(kernel) -o kernel.elf
 	objcopy -O binary kernel.elf kernel.bin
-	bash tools/grub.sh
-	bash tools/iso.sh
 
-%.o: %.c
-	$(CC) $(CXXFLAGS) -c -o $@ $<
+%.o: %.cc
+	$(CXX) -c -o $@ $<
 
 %.o: %.asm
 	$(AS) -o $@ $<
@@ -21,7 +21,14 @@ clean:
 	find . -name "*.o" -delete
 	rm -f kernel.bin kernel.elf
 	rm -f os.iso
-	rm -f boot/eltorito.img
+
+grub:
+	bash tools/grub.sh
+
+iso:
+	bash tools/iso.sh
 
 qemu:
 	bash tools/qemu.sh
+
+.PHONY: all qemu iso grub clean
