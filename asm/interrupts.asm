@@ -1,8 +1,9 @@
 [BITS 64]
-[GLOBAL idt_init]
-[EXTERN test_interrupt]
+[GLOBAL init_interrupts]
+[EXTERN isr_handler]
 
-idt_init:
+init_interrupts:
+    ;; map first 32 interrupts
 %assign i 0
 %rep 32
     mov rax, isr%[i]                ; load interrupt address
@@ -19,6 +20,18 @@ idt_init:
     mov dword [idt+i*16+8], eax     ; set last 32 bit of base
 %assign i i+1
 %endrep
+
+    ;; remap irqs
+    out 0x20, 0x11
+    out 0xA0, 0x11
+    out 0x21, 0x20
+    out 0xA1, 0x28
+    out 0x21, 0x04
+    out 0xA1, 0x02
+    out 0x21, 0x01
+    out 0xA1, 0x01
+    out 0x21, 0x0
+    out 0xA1, 0x0
 
     lidt [idt.pointer]
     ret
@@ -40,11 +53,40 @@ isr_common_stub:
     push rbp
     push rsi
     push rdi
-    push rsp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
 
-    call test_interrupt
+    mov ax, ds
+    push rax
 
-    pop rsp
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call isr_handler
+
+    pop rax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
     pop rdi
     pop rsi
     pop rbp
@@ -53,27 +95,28 @@ isr_common_stub:
     pop rbx
     pop rax
 
-    add esp, 8
-
+    add rsp, 0x38
     sti
+    hlt
     iret
 
-;; define all interrupt service routines
+;; macros for interrupt service routines
 %macro ISR_NOERRCODE 1
 isr%1:
     cli
-    push byte 0
-    push byte %1
+    push qword 0
+    push qword %1
     jmp isr_common_stub
 %endmacro
 
 %macro ISR_ERRCODE 1
 isr%1:
     cli
-    push byte %1
+    push qword %1
     jmp isr_common_stub
 %endmacro
 
+;; define all interrupt service routines
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
 ISR_NOERRCODE 2

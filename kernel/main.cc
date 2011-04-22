@@ -18,14 +18,10 @@ void fail() {
   Video::setColor(Video::white);
 }
 
-extern "C" void test_interrupt() {
-  Video::print("received interrupt\n");
-}
-
 extern "C" void kmain() {
   Video::clear();
   Video::setColor(Video::bright_green);
-  Video::print("BOOTING PROTIX 0.1\n\n");
+  Video::print("IX 0.1\n\n");
   Video::setColor(Video::white);
 
   Machine::init();

@@ -1,9 +1,9 @@
 #include <kernel/machine.h>
 
-extern "C" void idt_init();
+extern "C" void init_interrupts();
 
 void Machine::init() {
-  idt_init();
+  init_interrupts();
 }
 
 void Machine::startInterrupts() {
