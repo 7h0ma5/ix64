@@ -1,42 +1,33 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-class Video {
-private:
-  static char* mem;
-  static char attr; 
-  static int x;
-  static int y;
-
-public:
-  static void put(char);
-  static void print(const char*);
-  static void clear();
+void video_put(char);
+void video_print(const char*);
+void video_clear();
   
-  static void cursor();
-  static void scroll();
+void video_cursor();
+void video_scroll();
   
-  static void setColor(char);
-  static void setBackground(char);
+void video_set_color(char);
+void set_background(char);
   
-  enum {
-    black = 0x0,
-    blue = 0x1,
-    green = 0x2,
-    cyan = 0x3,
-    red = 0x4,
-    magenta = 0x5,
-    brown = 0x6,
-    bright_grey = 0x7,
-    grey = 0x8,
-    bright_blue = 0x9,
-    bright_green = 0xa,
-    bright_cyan = 0xb,
-    bright_red = 0xc,
-    bright_magenta = 0xd,
-    yellow = 0xe,
-    white = 0xf,
-  };
+enum {
+  video_black = 0x0,
+  video_blue = 0x1,
+  video_green = 0x2,
+  video_cyan = 0x3,
+  video_red = 0x4,
+  video_magenta = 0x5,
+  video_brown = 0x6,
+  video_bright_grey = 0x7,
+  video_grey = 0x8,
+  video_bright_blue = 0x9,
+  video_bright_green = 0xa,
+  video_bright_cyan = 0xb,
+  video_bright_red = 0xc,
+  video_bright_magenta = 0xd,
+  video_yellow = 0xe,
+  video_white = 0xf
 };
 
 #endif

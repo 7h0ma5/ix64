@@ -8,10 +8,10 @@ typedef struct registers {
   unsigned long eip, cs, eflags, useresp, ss;
 } registers;
 
-extern "C" void isr_handler(registers regs) {
+void isr_handler(registers regs) {
   kputs("received interrupt ");
-  kputn(regs.int_no);
+  kputn(regs.int_no, 10);
   kputs("/");
-  kputn(regs.err_code);
+  kputn(regs.err_code, 10);
   kputs("\n");
 }

@@ -6,21 +6,21 @@ SECTIONS {
 
     .text : {
         text_start = .;
-	*(.multiboot)
+        *(.multiboot)
         *(.text)
-	text_end = .;
+        text_end = .;
     }
 
     .data ALIGN(4096) : {
         data_start = .;
         *(.data)
-	*(.rodata)
-	data_end = .;
+        *(.rodata)
+        data_end = .;
     }
 
     .bss ALIGN(4096) : {
         bss_start = .;
         *(.bss)
-	bss_end = .;
+        bss_end = .;
     }
 }

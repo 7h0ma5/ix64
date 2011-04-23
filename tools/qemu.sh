@@ -1,13 +1,13 @@
 if [ "$DISPLAY" == "" ]; then
-  if [ "$1" == "debug" ]; then
-    qemu-system-x86_64 -cpu core2duo -vnc :1 -S -s -cdrom os.iso
+  if [ "$2" == "debug" ]; then
+    qemu-system-x86_64 -cpu core2duo -vnc :1 -S -s -cdrom "$1"
   else
-    qemu-system-x86_64 -cpu core2duo -vnc :1 -cdrom os.iso
+    qemu-system-x86_64 -cpu core2duo -vnc :1 -cdrom "$1"
   fi
 else
-  if [ "$1" == "debug" ]; then
-    qemu-system-x86_64 -cpu core2duo -S -s -cdrom os.iso
+  if [ "$2" == "debug" ]; then
+    qemu-system-x86_64 -cpu core2duo -S -s -cdrom "$1"
   else
-    qemu-system-x86_64 -cpu core2duo -cdrom os.iso
+    $(qemu-system-x86_64 -cpu core2duo -cdrom $1)
   fi
 fi

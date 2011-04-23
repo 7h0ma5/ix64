@@ -1,5 +1,2 @@
-*.o
-*.bin
-*.iso
-*.img
-*.elf
+.DS_Store
+build/

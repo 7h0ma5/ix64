@@ -12,7 +12,7 @@ MB_MAGIC  EQU 0x1BADB002
 MB_FLAGS  EQU 1 << 1 | 1 << 16
 MB_CHKSUM EQU -(MB_MAGIC + MB_FLAGS)
 
-align 4, db 0
+align 4
 mb_hdr:
     dd MB_MAGIC
     dd MB_FLAGS

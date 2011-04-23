@@ -3,6 +3,6 @@
 
 void kputc(char);
 void kputs(const char*);
-void kputn(long, unsigned int=10);
+void kputn(long, unsigned int);
 
 #endif

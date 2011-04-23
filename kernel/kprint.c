@@ -35,9 +35,9 @@ void kputn(long value, unsigned int radix) {
 }
 
 void kputs(const char* str) {
-  Video::print(str);
+  video_print(str);
 }
 
 void kputc(char c) {
-  Video::put(c);
+  video_put(c);
 }
