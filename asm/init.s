@@ -39,18 +39,18 @@ start:
     mov edi, cr3
 
     ;; add a first table chain
-    mov DWORD [edi], 0x2003
+    mov dword [edi], 0x2003
     add edi, 0x1000
-    mov DWORD [edi], 0x3003
+    mov dword [edi], 0x3003
     add edi, 0x1000
-    mov DWORD [edi], 0x4003
+    mov dword [edi], 0x4003
     add edi, 0x1000
 
     ;; fill the first two megabytes
     mov ebx, 0x00000003
     mov ecx, 512
 .set_entry:
-    mov DWORD [edi], ebx
+    mov dword [edi], ebx
     add ebx, 0x1000
     add edi, 8
     loop .set_entry
@@ -73,16 +73,12 @@ start:
 
     ;; set the gdt
     lgdt [gdt.pointer]
+
     jmp gdt.code:start64
 
 gdt:
 .null: equ $ - gdt
-    dw 0
-    dw 0
-    db 0
-    db 0
-    db 0
-    db 0
+    dq 0
 
 .code: equ $ - gdt
     dw 0
@@ -107,6 +103,15 @@ gdt:
 [BITS 64]
 [EXTERN kmain]
 start64:
+    cli ; stop interrupts
+
+    ;; set segment registers
+    mov ax, gdt.data
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
     ;; set up the stack
     mov rsp, kernel_stack
 

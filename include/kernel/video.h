@@ -1,5 +1,5 @@
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef IX_VIDEO_H
+#define IX_VIDEO_H
 
 void video_put(char);
 void video_print(const char*);
@@ -9,7 +9,7 @@ void video_cursor();
 void video_scroll();
   
 void video_set_color(char);
-void set_background(char);
+void video_set_background(char);
   
 enum {
   video_black = 0x0,

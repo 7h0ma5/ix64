@@ -1,25 +1,49 @@
 [BITS 64]
-[GLOBAL init_interrupts]
 [EXTERN isr_handler]
+[EXTERN irq_handler]
 
-init_interrupts:
-    ;; map first 32 interrupts
-%assign i 0
-%rep 32
-    mov rax, isr%[i]                ; load interrupt address
+[GLOBAL start_interrupts]
+start_interrupts:
+    sti
+    ret
 
-    mov word [idt+(i*16)], ax       ; set first 16 bit of base
+[GLOBAL stop_interrupts]
+stop_interrupts:
+    cli
+    ret
 
-    mov word [idt+i*16+2], 0x08     ; set code selector
-    mov word [idt+i*16+4], 0x8E00   ; set flags
+%macro set_gate 2
+    mov rax, %2                     ; load interrupt address
+
+    mov word [idt+(%1*16)], ax       ; set first 16 bit of base
+
+    mov word [idt+%1*16+2], 0x08     ; set code selector
+    mov word [idt+%1*16+4], 0x8E00   ; set flags
 
     shr rax, 16
-    mov word [idt+i*16+6], ax       ; set next 16 bit of base
+    mov word [idt+%1*16+6], ax       ; set next 16 bit of base
 
     shr rax, 16
-    mov dword [idt+i*16+8], eax     ; set last 32 bit of base
-%assign i i+1
-%endrep
+    mov dword [idt+%1*16+8], eax     ; set last 32 bit of base
+%endmacro
+
+[GLOBAL idt_init]
+idt_init:
+    ;; map first 32 interrupt service routines
+    %assign i 0
+    %rep 32
+        set_gate i, isr%[i]
+        %assign i i+1
+    %endrep
+
+    ;; map 16 irqs
+    %assign i 32
+    %assign j 0
+    %rep 16
+        set_gate i, irq%[j]
+        %assign i i+1
+        %assign j j+1
+    %endrep
 
     lidt [idt.pointer]
     ret
@@ -33,7 +57,8 @@ idt:
     dw 256*16-1
     dq idt
 
-isr_common_stub:
+;; pusha, popa macros // to push/pop all registers
+%macro pusha 0
     push rax
     push rbx
     push rcx
@@ -49,24 +74,9 @@ isr_common_stub:
     push r13
     push r14
     push r15
+%endmacro
 
-    mov ax, ds
-    push rax
-
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
-    call isr_handler
-
-    pop rax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
+%macro popa 0
     pop r15
     pop r14
     pop r13
@@ -82,11 +92,36 @@ isr_common_stub:
     pop rcx
     pop rbx
     pop rax
+%endmacro
 
+isr_common_stub:
+    pusha
+
+    ;; save the data segment descriptor
+    mov ax, ds
+    push rax
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call isr_handler
+
+    ;; restore the data segment descriptor
+    pop rax
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+
+    popa
     add rsp, 0x38
-    sti
+
     hlt
-    iret
+
+    iretq
 
 ;; macros for interrupt service routines
 %macro ISR_NOERRCODE 1
@@ -137,3 +172,57 @@ ISR_NOERRCODE 28
 ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
+
+irq_common_stub:
+    pusha
+
+    ;; save the data segment descriptor
+    mov ax, ds
+    push rax
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call irq_handler
+
+    ;; restore the data segment descriptor
+    pop rax
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+
+    popa
+    add rsp, 0x38
+
+    iretq
+
+;; macro for interrupt requests
+%macro IRQ 2
+irq%1:
+    cli
+    push byte 0
+    push byte %2
+    jmp irq_common_stub
+%endmacro
+
+;; define all interrupt requests
+IRQ 0,  32
+IRQ 1,  33
+IRQ 2,  34
+IRQ 3,  35
+IRQ 4,  36
+IRQ 5,  37
+IRQ 6,  38
+IRQ 7,  39
+IRQ 8,  40
+IRQ 9,  41
+IRQ 10, 42
+IRQ 11, 43
+IRQ 12, 44
+IRQ 13, 45
+IRQ 14, 46
+IRQ 15, 47

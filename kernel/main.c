@@ -1,6 +1,6 @@
 #include <kernel/video.h>
-
-void init_interrupts();
+#include <kernel/interrupts.h>
+#include <kernel/kprint.h>
 
 void step(const char* message) {
   video_print(message);
@@ -19,16 +19,31 @@ void fail() {
   video_set_color(video_white);
 }
 
+void panic() {
+  stop_interrupts();
+  video_set_background(video_red);
+  video_clear();
+
+  kputs("KERNEL PANIC\n\n");
+  kputs("An exception has occured.\n");
+  kputs("Please reboot.\n\n");
+  
+  while (1) {};
+}
+
 void kmain() {
   video_clear();
   video_set_color(video_bright_green);
-  video_print("IX 0.1\n\n");
+  video_print("IX 0.1");
+  video_set_color(video_blue);
+  video_print("       Copyright 2011\n\n");
   video_set_color(video_white);
 
   step("starting interrupts");
-  init_interrupts();
-  asm volatile("sti");
+  interrupts_init();
   done();
 
   while (1) {};
+
+  panic();
 }
