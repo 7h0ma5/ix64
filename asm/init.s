@@ -74,6 +74,14 @@ start:
     ;; set the gdt
     lgdt [gdt.pointer]
 
+    ;; set segment registers
+    mov ax, gdt.data
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
     jmp gdt.code:start64
 
 gdt:
@@ -81,19 +89,19 @@ gdt:
     dq 0
 
 .code: equ $ - gdt
-    dw 0
+    dw 0xFFFF
     dw 0
     db 0
-    db 0b10011000
-    db 0b00100000
+    db 0b10011010
+    db 0b10101111
     db 0
 
 .data: equ $ - gdt
-    dw 0
+    dw 0xFFFF
     dw 0
     db 0
-    db 0b10010000
-    db 0b00000000
+    db 0b10010010
+    db 0b10001111
     db 0
 
 .pointer:
@@ -105,13 +113,6 @@ gdt:
 start64:
     cli ; stop interrupts
 
-    ;; set segment registers
-    mov ax, gdt.data
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
     ;; set up the stack
     mov rsp, kernel_stack
 
@@ -121,7 +122,7 @@ start64:
     cli
     hlt
 
-;; kernel stack / 8 kB
+;; kernel stack / 32 kB
 [SECTION .bss]
-resb 8192
+resb 32768
 kernel_stack:

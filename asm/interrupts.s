@@ -13,18 +13,18 @@ stop_interrupts:
     ret
 
 %macro set_gate 2
-    mov rax, %2                     ; load interrupt address
+    mov rax, %2                        ; load interrupt address
 
-    mov word [idt+(%1*16)], ax       ; set first 16 bit of base
+    mov word [idt+(%1*16)], ax         ; set first 16 bit of base
 
-    mov word [idt+%1*16+2], 0x08     ; set code selector
-    mov word [idt+%1*16+4], 0x8E00   ; set flags
-
-    shr rax, 16
-    mov word [idt+%1*16+6], ax       ; set next 16 bit of base
+    mov word [idt+%1*16+2], 0x08       ; set code selector
+    mov byte [idt+%1*16+5], 0b10001110 ; set flags
 
     shr rax, 16
-    mov dword [idt+%1*16+8], eax     ; set last 32 bit of base
+    mov word [idt+%1*16+6], ax         ; set middle 16 bit of base
+
+    shr rax, 16
+    mov dword [idt+%1*16+8], eax       ; set last 32 bit of base
 %endmacro
 
 [GLOBAL idt_init]
@@ -97,29 +97,10 @@ idt:
 isr_common_stub:
     pusha
 
-    ;; save the data segment descriptor
-    mov ax, ds
-    push rax
-
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
     call isr_handler
-
-    ;; restore the data segment descriptor
-    pop rax
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
 
     popa
     add rsp, 0x38
-
-    hlt
 
     iretq
 
@@ -176,24 +157,7 @@ ISR_NOERRCODE 31
 irq_common_stub:
     pusha
 
-    ;; save the data segment descriptor
-    mov ax, ds
-    push rax
-
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
     call irq_handler
-
-    ;; restore the data segment descriptor
-    pop rax
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
 
     popa
     add rsp, 0x38
