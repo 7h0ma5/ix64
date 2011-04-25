@@ -27,7 +27,7 @@ void panic() {
   kputs("KERNEL PANIC\n\n");
   kputs("An exception has occured.\n");
   kputs("Please reboot.\n\n");
-  
+
   while (1) {};
 }
 

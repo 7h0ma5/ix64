@@ -48,6 +48,7 @@ idt:
 
 ;; pusha, popa macros // to push/pop all registers
 %macro pusha 0
+    push rsp
     push rax
     push rbx
     push rcx
@@ -81,6 +82,7 @@ idt:
     pop rcx
     pop rbx
     pop rax
+    pop rsp
 %endmacro
 
 isr_common_stub:

@@ -106,8 +106,14 @@ gdt:
 [BITS 64]
 [EXTERN kmain]
 start64:
+
+    mov rcx, 90000000
+.l:
+    nop
+    loop .l
+
     ;; set segment registers
-    xor rax, rax
+    mov ax, gdt.data
     mov ds, ax
     mov es, ax
     mov fs, ax
