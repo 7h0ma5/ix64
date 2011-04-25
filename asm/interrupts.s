@@ -17,7 +17,7 @@ stop_interrupts:
 
     mov word [idt+(%1*16)], ax         ; set first 16 bit of base
 
-    mov word [idt+%1*16+2], 0x08       ; set code selector
+    mov word [idt+%1*16+2], 0x0008     ; set code selector
     mov byte [idt+%1*16+5], 0b10001110 ; set flags
 
     shr rax, 16
@@ -29,32 +29,21 @@ stop_interrupts:
 
 [GLOBAL idt_init]
 idt_init:
-    ;; map first 32 interrupt service routines
+    ;; map first 32 interrupt service routines (and irqs)
     %assign i 0
-    %rep 32
+    %rep 48
         set_gate i, isr%[i]
         %assign i i+1
-    %endrep
-
-    ;; map 16 irqs
-    %assign i 32
-    %assign j 0
-    %rep 16
-        set_gate i, irq%[j]
-        %assign i i+1
-        %assign j j+1
     %endrep
 
     lidt [idt.pointer]
     ret
 
-[SECTION .bss]
 idt:
-    resb 256*16
+    times 256 * 16 db 0
 
-[SECTION .text]
 .pointer:
-    dw 256*16-1
+    dw 256 * 16 - 1
     dq idt
 
 ;; pusha, popa macros // to push/pop all registers
@@ -99,6 +88,11 @@ isr_common_stub:
 
     call isr_handler
 
+    mov rcx, 90000000
+.l:
+    nop
+    loop .l
+
     popa
     add rsp, 0x38
 
@@ -107,7 +101,6 @@ isr_common_stub:
 ;; macros for interrupt service routines
 %macro ISR_NOERRCODE 1
 isr%1:
-    cli
     push qword 0
     push qword %1
     jmp isr_common_stub
@@ -115,7 +108,6 @@ isr%1:
 
 %macro ISR_ERRCODE 1
 isr%1:
-    cli
     push qword %1
     jmp isr_common_stub
 %endmacro
@@ -166,10 +158,9 @@ irq_common_stub:
 
 ;; macro for interrupt requests
 %macro IRQ 2
-irq%1:
-    cli
-    push byte 0
-    push byte %2
+isr%2:
+    push qword 0
+    push qword %1
     jmp irq_common_stub
 %endmacro
 

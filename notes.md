@@ -1,0 +1,2 @@
+- difference iret/iretq?
+- why there is 0x18 bytes to mutch on the stack after an interrupt

@@ -25,6 +25,8 @@ mb_hdr:
 
 [SECTION .text]
 start:
+    cli ; stop interrupts
+
     ;; enable A20 gate
     in al, 0x92
     or al, 0x2
@@ -74,16 +76,9 @@ start:
     ;; set the gdt
     lgdt [gdt.pointer]
 
-    ;; set segment registers
-    mov ax, gdt.data
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-
     jmp gdt.code:start64
 
+align 8
 gdt:
 .null: equ $ - gdt
     dq 0
@@ -105,13 +100,19 @@ gdt:
     db 0
 
 .pointer:
-    dw $ - gdt -1
+    dw $ - gdt - 1
     dq gdt
 
 [BITS 64]
 [EXTERN kmain]
 start64:
-    cli ; stop interrupts
+    ;; set segment registers
+    xor rax, rax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
 
     ;; set up the stack
     mov rsp, kernel_stack
@@ -122,7 +123,7 @@ start64:
     cli
     hlt
 
-;; kernel stack / 32 kB
 [SECTION .bss]
+;; kernel stack / 32 kB
 resb 32768
 kernel_stack:
