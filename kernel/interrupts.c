@@ -27,7 +27,7 @@ void ipanic(istack stack) {
   video_clear();
 
   kputs("KERNEL PANIC\n\n");
-  kputs("An exception has occured.\n");
+  kputs("An exception has occurred.\n");
   kputs("Please reboot.\n\n");
 
   kputs("EXCEPTION 0x");
@@ -51,8 +51,6 @@ void ipanic(istack stack) {
   kputn(stack.rsi, 16);
   kputs(" / rdi: 0x");
   kputn(stack.rdi, 16);
-  kputs(" / rsp: 0x");
-  kputn(stack.rsp, 16);
   kputs("\n\n");
 
   kputs("r8: 0x");
@@ -82,7 +80,7 @@ void isr_handler(istack stack) {
   kputs("/0x");
   kputn(stack.err_code, 16);
   kputs("\n");
-  
+
   if (stack.int_no == 0xD) {
     ipanic(stack);
   }
@@ -100,4 +98,3 @@ void irq_handler(istack stack) {
   }
   outb(0x20, 0x20);
 }
-

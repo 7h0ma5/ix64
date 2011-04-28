@@ -73,17 +73,24 @@ start:
     or eax, 1 << 31
     mov cr0, eax
 
-    ;; set the gdt
+    ;; complete tss gdt entry
+    mov eax, tss
+    mov word [gdt.tss+2], ax
+    shr eax, 16
+    mov byte [gdt.tss+4], al
+    mov byte [gdt.tss+7], ah
+
+    ;; load the gdt
     lgdt [gdt.pointer]
 
-    jmp gdt.code:start64
+    jmp 0x08:start64
 
 align 8
 gdt:
-.null: equ $ - gdt
+.null:
     dq 0
 
-.code: equ $ - gdt
+.code:
     dw 0xFFFF
     dw 0
     db 0
@@ -91,7 +98,7 @@ gdt:
     db 0b10101111
     db 0
 
-.data: equ $ - gdt
+.data:
     dw 0xFFFF
     dw 0
     db 0
@@ -99,21 +106,26 @@ gdt:
     db 0b10001111
     db 0
 
+.tss:
+    dw 0x0067
+    dw 0
+    db 0
+    db 0b10001001
+    db 0b10010000
+    db 0
+
 .pointer:
     dw $ - gdt - 1
     dq gdt
 
+tss:
+    times 65 dq 0
+
 [BITS 64]
 [EXTERN kmain]
 start64:
-
-    mov rcx, 90000000
-.l:
-    nop
-    loop .l
-
     ;; set segment registers
-    mov ax, gdt.data
+    xor ax, ax
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -133,3 +145,4 @@ start64:
 ;; kernel stack / 32 kB
 resb 32768
 kernel_stack:
+.end:

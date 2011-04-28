@@ -22,6 +22,8 @@ include_directories(include)
 add_executable(kernel.elf
     asm/init.s
     asm/interrupts.s
+    asm/isr.s
+    asm/irq.s
     asm/io.s
     kernel/interrupts.c
     kernel/kprint.c
