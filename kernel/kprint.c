@@ -1,5 +1,35 @@
 #include <kernel/kprint.h>
 #include <kernel/video.h>
+#include <stdarg.h>
+
+void printf(const char* format, ...) {
+  va_list ap;
+  va_start(ap, format);
+
+  while (*format) {
+    if (*format == '%') {
+      format++;
+      switch (*format) {
+      case 'i':
+        kputn(va_arg(ap, int), 10);
+        break;
+
+      case 'p':
+        kputn(va_arg(ap, unsigned long), 16);
+        break;
+
+      case 's':
+        kputs(va_arg(ap, const char*));
+        break;
+      }
+    }
+    else {
+      kputc(*format);
+    }
+    format++;
+  }
+  va_end(ap);
+}
 
 void kputn(long value, unsigned int radix) {
   char buffer[65];
