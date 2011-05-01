@@ -28,6 +28,7 @@ add_executable(kernel.elf
     kernel/interrupts.c
     kernel/kprint.c
     kernel/video.c
+	kernel/memory.c
     kernel/main.c
 )
 

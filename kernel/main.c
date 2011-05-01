@@ -1,6 +1,7 @@
 #include <kernel/video.h>
 #include <kernel/interrupts.h>
 #include <kernel/kprint.h>
+#include <kernel/multiboot.h>
 
 void step(const char* message) {
   video_print(message);
@@ -31,7 +32,7 @@ void panic() {
   while (1) {};
 }
 
-void kmain() {
+void kmain(multiboot_info* mbinfo) {
   video_clear();
   video_set_color(video_bright_green);
   video_print("IX 0.1");
@@ -39,7 +40,17 @@ void kmain() {
   video_print("       Copyright 2011\n\n");
   video_set_color(video_white);
 
-  step("starting interrupts");
+  kputs("mb_info: 0x");
+  kputn((unsigned long)mbinfo, 16);
+
+  kputs("\nmem_lower: 0x");
+  kputn(mbinfo->mem_lower, 16);
+  kputs("\nmem_upper: 0x");
+  kputn(mbinfo->mem_upper, 16);
+  kputs("\nmmap_length: 0x");
+  kputn(mbinfo->mmap_length, 16);
+
+  step("\nstarting interrupts");
   interrupts_init();
   done();
 

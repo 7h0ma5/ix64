@@ -87,12 +87,6 @@ void isr_handler(istack stack) {
 }
 
 void irq_handler(istack stack) {
-  kputs("received irq 0x");
-  kputn(stack.int_no, 16);
-  kputs("/0x");
-  kputn(stack.err_code, 16);
-  kputs("\n");
-
   if (stack.int_no >= 40) {
     outb(0xA0, 0x20);
   }

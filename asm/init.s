@@ -27,31 +27,38 @@ mb_hdr:
 start:
     cli ; stop interrupts
 
-    ;; enable A20 gate
-    in al, 0x92
-    or al, 0x2
-    out 0x92, al
+    ;; set up a stack
+    mov esp, kernel_stack.start
+
+    ;; save multiboot information structure (as qword)
+    push 0x0
+    push ebx
 
     ;; setup the page tables
-    mov edi, 0x1000 ; page tables at 0x1000
+    mov edi, pml4
     mov cr3, edi
     xor eax, eax
     mov ecx, 4096
     rep stosd
-    mov edi, cr3
 
     ;; add a first table chain
-    mov dword [edi], 0x2003
-    add edi, 0x1000
-    mov dword [edi], 0x3003
-    add edi, 0x1000
-    mov dword [edi], 0x4003
-    add edi, 0x1000
+    mov edi, pml4
+    mov dword [edi], pdpt
+    or dword [edi], 7
+
+    mov edi, pdpt
+    mov dword [edi], pd
+    or dword [edi], 7
+
+    mov edi, pd
+    mov dword [edi], pt
+    or dword [edi], 7
 
     ;; fill the first two megabytes
-    mov ebx, 0x00000003
+    mov edi, pt
+    mov ebx, 0x3
     mov ecx, 512
-.set_entry:
+    .set_entry:
     mov dword [edi], ebx
     add ebx, 0x1000
     add edi, 8
@@ -124,7 +131,7 @@ tss:
 [BITS 64]
 [EXTERN kmain]
 start64:
-    ;; set segment registers
+    ;; clear segment registers
     xor ax, ax
     mov ds, ax
     mov es, ax
@@ -132,9 +139,8 @@ start64:
     mov gs, ax
     mov ss, ax
 
-    ;; set up the stack
-    mov rsp, kernel_stack
-
+    ;; pass multiboot information structure
+    pop rdi
     call kmain
 
     ;; if something went wrong
@@ -143,6 +149,18 @@ start64:
 
 [SECTION .bss]
 ;; kernel stack / 32 kB
-resb 32768
 kernel_stack:
 .end:
+  resb 32768
+.start:
+
+;; basic paging structures
+align 4096
+pml4:
+  resq 512
+pdpt:
+  resq 512
+pd:
+  resq 512
+pt:
+  resq 512
