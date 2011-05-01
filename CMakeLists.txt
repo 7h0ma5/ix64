@@ -29,6 +29,7 @@ add_executable(kernel.elf
     kernel/kprint.c
     kernel/video.c
 	kernel/memory.c
+    kernel/paging.c
     kernel/main.c
 )
 

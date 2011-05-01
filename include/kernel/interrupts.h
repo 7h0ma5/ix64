@@ -7,7 +7,7 @@ typedef struct {
   unsigned long int_no, err_code;
 } interrupt_stack;
 
-void interrupts_init();
+int interrupts_init();
 
 // from interrupts.s
 void idt_init();

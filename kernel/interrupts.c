@@ -3,7 +3,7 @@
 #include <kernel/video.h>
 #include <kernel/io.h>
 
-void interrupts_init() {
+int interrupts_init() {
   idt_init();
 
   // remap irq's
@@ -19,6 +19,8 @@ void interrupts_init() {
   outb(0xA1, 0x0);
 
   start_interrupts();
+
+  return 0;
 }
 
 void exception(interrupt_stack stack) {

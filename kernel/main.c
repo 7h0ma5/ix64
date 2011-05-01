@@ -2,22 +2,24 @@
 #include <kernel/interrupts.h>
 #include <kernel/kprint.h>
 #include <kernel/multiboot.h>
+#include <kernel/memory.h>
+#include <kernel/paging.h>
 
 void step(const char* message) {
-  video_print(message);
-  video_print("... ");
+  kprintf("%s...", message);
 }
 
-void done() {
-  video_set_color(video_bright_green);
-  video_print("done\n");
-  video_set_color(video_white);
-}
-
-void fail() {
-  video_set_color(video_bright_red);
-  video_print("fail\n");
-  video_set_color(video_white);
+void test(int res) {
+  if (res == 0) {
+    video_set_color(video_bright_green);
+    video_print("done\n");
+    video_set_color(video_white);
+  }
+  else {
+    video_set_color(video_bright_red);
+    video_print("fail\n");
+    video_set_color(video_white);
+  }
 }
 
 void panic() {
@@ -40,19 +42,15 @@ void kmain(multiboot_info* mbinfo) {
   video_print("       Copyright 2011\n\n");
   video_set_color(video_white);
 
-  kputs("mb_info: 0x");
-  kputn((unsigned long)mbinfo, 16);
 
-  kputs("\nmem_lower: 0x");
-  kputn(mbinfo->mem_lower, 16);
-  kputs("\nmem_upper: 0x");
-  kputn(mbinfo->mem_upper, 16);
-  kputs("\nmmap_length: 0x");
-  kputn(mbinfo->mmap_length, 16);
+  step("starting interrupts");
+  test(interrupts_init());
 
-  step("\nstarting interrupts");
-  interrupts_init();
-  done();
+  step("initialize memory");
+  test(memory_init());
+
+  step("initialize paging");
+  test(paging_init());
 
   while (1) {};
 
