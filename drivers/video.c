@@ -1,4 +1,4 @@
-#include <kernel/video.h>
+#include <drivers/video.h>
 #include <kernel/io.h>
 
 #define WIDTH  80
@@ -21,6 +21,12 @@ void video_put(char c) {
     case '\n':
       vx = 0;
       vy++;
+      break;
+
+    case '\b':
+      vx--;
+      video_put(' ');
+      vx--;
       break;
 
     default:

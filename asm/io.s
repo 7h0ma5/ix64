@@ -2,7 +2,14 @@
 
 [GLOBAL outb]
 outb:
-    mov rax, rsi
-    mov rdx, rdi
+    mov ax, si
+    mov dx, di
     out dx, al
+    ret
+
+[GLOBAL inb]
+inb:
+    mov dx, di
+    xor rax, rax
+    in al, dx
     ret

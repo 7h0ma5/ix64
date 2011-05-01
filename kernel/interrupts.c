@@ -1,7 +1,9 @@
 #include <kernel/interrupts.h>
 #include <kernel/kprint.h>
-#include <kernel/video.h>
+#include <drivers/video.h>
 #include <kernel/io.h>
+
+interrupt_handler interrupt_handlers[256];
 
 int interrupts_init() {
   idt_init();
@@ -22,6 +24,11 @@ int interrupts_init() {
 
   return 0;
 }
+
+void interrupts_register(int index, interrupt_handler handler) {
+  interrupt_handlers[index] = handler;
+}
+
 
 void exception(interrupt_stack stack) {
   stop_interrupts();
@@ -51,4 +58,7 @@ void irq_handler(interrupt_stack stack) {
     outb(0xA0, 0x20);
   }
   outb(0x20, 0x20);
+
+  interrupt_handler handler = interrupt_handlers[stack.int_no];
+  if (handler) handler(stack);
 }

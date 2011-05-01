@@ -1,9 +1,10 @@
-#include <kernel/video.h>
 #include <kernel/interrupts.h>
 #include <kernel/kprint.h>
 #include <kernel/multiboot.h>
 #include <kernel/memory.h>
 #include <kernel/paging.h>
+#include <drivers/video.h>
+#include <drivers/keyboard.h>
 
 void step(const char* message) {
   kprintf("%s...", message);
@@ -51,6 +52,9 @@ void kmain(multiboot_info* mbinfo) {
 
   step("initialize paging");
   test(paging_init());
+
+  step("load keyboard driver");
+  test(keyboard_init());
 
   while (1) {};
 

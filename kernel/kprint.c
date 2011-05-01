@@ -1,5 +1,5 @@
 #include <kernel/kprint.h>
-#include <kernel/video.h>
+#include <drivers/video.h>
 #include <stdarg.h>
 
 void kprintf(const char* format, ...) {

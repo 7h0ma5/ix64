@@ -27,10 +27,11 @@ add_executable(kernel.elf
     asm/io.s
     kernel/interrupts.c
     kernel/kprint.c
-    kernel/video.c
 	kernel/memory.c
     kernel/paging.c
     kernel/main.c
+    drivers/keyboard.c
+    drivers/video.c
 )
 
 add_custom_target(kernel.bin ALL ${OBJCOPY} -O binary ${CMAKE_BINARY_DIR}/kernel.elf ${CMAKE_BINARY_DIR}/kernel.bin
