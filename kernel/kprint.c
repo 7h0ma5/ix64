@@ -2,7 +2,7 @@
 #include <kernel/video.h>
 #include <stdarg.h>
 
-void printf(const char* format, ...) {
+void kprintf(const char* format, ...) {
   va_list ap;
   va_start(ap, format);
 
