@@ -21,7 +21,7 @@ void interrupts_init() {
   start_interrupts();
 }
 
-void ipanic(istack stack) {
+void exception(interrupt_stack stack) {
   stop_interrupts();
   video_set_background(video_red);
   video_clear();
@@ -30,63 +30,21 @@ void ipanic(istack stack) {
   kputs("An exception has occurred.\n");
   kputs("Please reboot.\n\n");
 
-  kputs("EXCEPTION 0x");
-  kputn(stack.int_no, 16);
-  kputs(" with code 0x");
-  kputn(stack.err_code, 16);
-  kputs("\n\n");
+  kprintf("EXCEPTION %p with code %p\n\n", stack.int_no, stack.err_code);
 
-  kputs("rax: 0x");
-  kputn(stack.rax, 16);
-  kputs(" / rbx: 0x");
-  kputn(stack.rbx, 16);
-  kputs(" / rcx: 0x");
-  kputn(stack.rcx, 16);
-  kputs(" / rdx: 0x");
-  kputn(stack.rdx, 16);
-
-  kputs("\nrbp: 0x");
-  kputn(stack.rbp, 16);
-  kputs(" / rsi: 0x");
-  kputn(stack.rsi, 16);
-  kputs(" / rdi: 0x");
-  kputn(stack.rdi, 16);
-  kputs("\n\n");
-
-  kputs("r8: 0x");
-  kputn(stack.r8, 16);
-  kputs(" / r9: 0x");
-  kputn(stack.r9, 16);
-  kputs(" / r10: 0x");
-  kputn(stack.r9, 16);
-  kputs(" / r11: 0x");
-  kputn(stack.r9, 16);
-
-  kputs("\nr12: 0x");
-  kputn(stack.r9, 16);
-  kputs(" / r13: 0x");
-  kputn(stack.r9, 16);
-  kputs(" / r14: 0x");
-  kputn(stack.r9, 16);
-  kputs(" / r15: 0x");
-  kputn(stack.r9, 16);
+  kprintf("rax: %p rbx: %p rcx: %p rdx: %p\n", stack.rax, stack.rbx, stack.rcx, stack.rdx);
+  kprintf("rbp: %p rsi: %p rdi: %p\n", stack.rbp, stack.rsi, stack.rdi);
+  kprintf("r8: %p r9: %p r10: %p r11: %p\n", stack.r8, stack.r9, stack.r10, stack.r11);
+  kprintf("r12: %p r13: %p r14: %p r15: %p\n", stack.r12, stack.r13, stack.r14, stack.r15);
 
   while (1) {};
 }
 
-void isr_handler(istack stack) {
-  kputs("received interrupt 0x");
-  kputn(stack.int_no, 16);
-  kputs("/0x");
-  kputn(stack.err_code, 16);
-  kputs("\n");
-
-  if (stack.int_no == 0xD) {
-    ipanic(stack);
-  }
+void isr_handler(interrupt_stack stack) {
+  exception(stack);
 }
 
-void irq_handler(istack stack) {
+void irq_handler(interrupt_stack stack) {
   if (stack.int_no >= 40) {
     outb(0xA0, 0x20);
   }
