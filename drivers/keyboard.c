@@ -15,36 +15,36 @@ char uppercase[256] = {'°','X','!','"','§','$','%','&','/','(',')','=','X','X'
 unsigned int shift_state;
 
 void keyboard_interrupt(interrupt_stack stack) {
-  unsigned char scan_code = inb(0x60);
+    unsigned char scan_code = inb(0x60);
 
-  switch(scan_code) {
+    switch(scan_code) {
     case 0x2a:
-      shift_state = 1;
-      break;
+        shift_state = 1;
+        break;
 
     case 0xAA:
-      shift_state = 0;
-      break;
+        shift_state = 0;
+        break;
 
     default:
-      if (scan_code > 128) {
-        // ignore
-      }
-      else {
-        if (shift_state) {
-          kputc(uppercase[scan_code]);
+        if (scan_code > 128) {
+            // ignore
         }
         else {
-          kputc(lowercase[scan_code]);
+            if (shift_state) {
+                kputc(uppercase[scan_code]);
+            }
+            else {
+                kputc(lowercase[scan_code]);
+            }
         }
-      }
-      break;
-  }
+        break;
+    }
 
-  outb(0x20, 0x20);
+    outb(0x20, 0x20);
 }
 
 int keyboard_init() {
-  interrupts_register(33, &keyboard_interrupt);
-  return 0;
+    interrupts_register(33, &keyboard_interrupt);
+    return 0;
 }

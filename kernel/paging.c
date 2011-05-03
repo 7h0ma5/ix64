@@ -2,5 +2,5 @@
 #include <kernel/memory.h>
 
 int paging_init() {
-  return 0;
+    return 0;
 }
