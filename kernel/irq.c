@@ -11,17 +11,19 @@ int irq_init() {
   return 0;
 }
 
-void irq_handle(cpu_state* state) {
+cpu_state* irq_handle(cpu_state* state) {
   unsigned irq = 0;
   unsigned status = IC_REGS[0];
 
   while (status) {
     if (status & 1) {
-      irq_handlers[irq](state);
+      state = irq_handlers[irq](state);
     }
     irq++;
     status >>= 1;
   }
+
+  return state;
 }
 
 void irq_register(unsigned irq, irq_handler* handler) {

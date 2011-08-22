@@ -5,8 +5,9 @@
 #define TIMER_REG ((volatile unsigned*)0x13000000)
 #define TIMER1_REG (TIMER_REG + 0x40)
 
-void timer_tick(cpu_state* state) {
+cpu_state* timer_tick(cpu_state* state) {
   TIMER1_REG[3] = 42;
+  return state;
 }
 
 int timer_init() {
